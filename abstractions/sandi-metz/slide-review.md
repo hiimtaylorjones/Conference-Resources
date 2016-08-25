@@ -169,7 +169,7 @@ class Baz
 end
 ```
 
-### Step 3
+### Step 3 - Data Clump | Extract Class
 
 ```ruby
 class DateRange
@@ -197,7 +197,7 @@ class Foo
 end
 ```
 
-### Step 4
+### Step 4 - Data Clump | Extract Class
 
 ```ruby
 class DateRange
@@ -232,4 +232,43 @@ class Bar
 end
 ```
 
-### Step 5
+### Step 5 - Data Clump | Extract Class
+
+```ruby
+class DateRange
+  attr_reader :starting, :ending
+
+  def initialize(starting:, ending: nil)
+    @starting = Date.parse(starting) rescue Date.today
+    @ending = Date.parse(ending) rescue @starting
+  end
+
+  def range
+    starting..ending
+  end
+
+  def week_range
+    starting..(starting + 6)
+  end
+end
+
+class Foo
+  def sales_total(params)
+    range = DateRange.new(starting: params[:starting], ending: params[:ending]).range
+    Sale.where(date: range).sum("cost")
+  end
+end
+
+class Bar
+  def weekly_sales_total(params)
+    range = DateRange.new(starting: params[:starting]).week_range
+    Sale.where(date: range).sum("cost")
+  end
+end
+
+class Baz
+  def expense_total(params)
+    range = DateRange.new(starting: params[:starting], ending: params[:ending]).range
+    Expense.where(date: (Date.parse(params[:string]))..(Date.parse(params[:ending]))).sum("cost")
+end
+```
