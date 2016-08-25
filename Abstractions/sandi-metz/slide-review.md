@@ -96,3 +96,75 @@ Steps to this:
 [Resource For This](http://www.industriallogic.com/wp-content/uploads/2005/09/smellstorefactorings.pdf)
 
 # Time For Some Code
+
+## A Tale of Two Classes
+
+### Start
+
+```ruby
+class Sale < Persistence
+end
+
+
+class Foo
+  def sales_total(params)
+    Sale.where(date: (Date.parse(params[:starting]))..(Date.parse(params[:ending]))).sum("cost")
+  end
+end
+```
+
+### Step 1
+
+```ruby
+class Sale < Persistence
+end
+
+class Foo
+  def sales_total(params)
+    Sale.where(date: (Date.parse(params[:starting]))..(Date.parse(params[:ending]))).sum("cost")
+  end
+end
+
+class Bar
+  def weekly_sales_total(params)
+    start_date = (Date.parse(params[:string]))
+    end_date = start_date + 6
+
+    Sale.where(date: (start_date..end_date)).sum("cost")
+  end
+end
+```
+
+
+### Step 2
+
+```ruby
+class Sale < Persistence
+end
+
+class Expense < Persistence
+end
+
+class Foo
+  def sales_total(params)
+    Sale.where(date: (Date.parse(params[:starting]))..(Date.parse(params[:ending]))).sum("cost")
+  end
+end
+
+class Bar
+  def weekly_sales_total(params)
+    start_date = (Date.parse(params[:string]))
+    end_date = start_date + 6
+
+    Sale.where(date: (start_date..end_date)).sum("cost")
+  end
+end
+
+class Baz
+  def expense_total(params)
+    Expense.where(date: (Date.parse(params[:starting]))..(Date.parse(params[:ending]))).sum("cost")
+  end
+end
+```
+
+### Step 3
