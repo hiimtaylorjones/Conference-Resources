@@ -162,9 +162,74 @@ end
 
 class Baz
   def expense_total(params)
+    start_date = (Date.parse(params[:starting])) rescue Date.today
+    end_date = (Date.parse(params[:ending])) rescue start_date
     Expense.where(date: (Date.parse(params[:starting]))..(Date.parse(params[:ending]))).sum("cost")
   end
 end
 ```
 
 ### Step 3
+
+```ruby
+class DateRange
+  attr_reader :starting, :ending
+
+  def initialize(starting:, ending: nil)
+    @starting = Date.parse(starting) rescue Date.today
+    @ending = Date.parse(ending) rescue @starting
+  end
+
+  def range
+    starting..ending
+  end
+
+  def week_range
+    starting..(starting + 6)
+  end
+end
+
+class Foo
+  def sales_total(params)
+    range = DateRange.new(starting: params[:starting], ending: params[:ending]).range
+    Sale.where(date: range).sum("cost")
+  end
+end
+```
+
+### Step 4
+
+```ruby
+class DateRange
+  attr_reader :starting, :ending
+
+  def initialize(starting:, ending: nil)
+    @starting = Date.parse(starting) rescue Date.today
+    @ending = Date.parse(ending) rescue @starting
+  end
+
+  def range
+    starting..ending
+  end
+
+  def week_range
+    starting..(starting + 6)
+  end
+end
+
+class Foo
+  def sales_total(params)
+    range = DateRange.new(starting: params[:starting], ending: params[:ending]).range
+    Sale.where(date: range).sum("cost")
+  end
+end
+
+class Bar
+  def weekly_sales_total(params)
+    range = DateRange.new(starting: params[:starting]).week_range
+    Sale.where(date: range).sum("cost")
+  end
+end
+```
+
+### Step 5
